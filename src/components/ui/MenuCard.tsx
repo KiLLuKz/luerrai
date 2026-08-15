@@ -9,6 +9,18 @@ interface MenuCardProps {
   delay?: number;
 }
 
+const SOLD_OUT_MEMES = [
+  "แห้วแดก (M.6 Edition)",
+  "หมดแล้วจ้า ม.6 ร้องไห้",
+  "ช้าไปนะวัยรุ่น",
+  "ไว้เจอกันชาติหน้า",
+  "คิวสุดท้ายเพิ่งเหมาไป!"
+];
+
+const getSoldOutText = (id: number) => {
+  return SOLD_OUT_MEMES[id % SOLD_OUT_MEMES.length];
+};
+
 export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -45,8 +57,8 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
             loading="lazy"
           />
           {!menu.is_available && (
-            <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
-              <span className="bg-surface/90 backdrop-blur-md text-red-500 px-3 py-1 sm:px-5 sm:py-2 rounded-full text-xs sm:text-base font-bold rotate-[-6deg] shadow-xl border border-red-500/20 tracking-wide uppercase">Sold Out</span>
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+              <span className="bg-surface/90 backdrop-blur-md text-red-500 px-3 py-1 sm:px-5 sm:py-2 rounded-full text-xs sm:text-base font-bold rotate-[-6deg] shadow-xl border border-red-500/20 tracking-wide uppercase">{getSoldOutText(menu.id)}</span>
             </div>
           )}
         </div>
@@ -94,8 +106,8 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
               <div className="w-full sm:w-1/2 aspect-square sm:aspect-[4/3] bg-surface-hover relative shrink-0">
                 <img src={menu.image_url} alt={menu.name} className="w-full h-full object-cover" />
                 {!menu.is_available && (
-                  <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
-                    <span className="bg-surface/90 backdrop-blur-md text-red-500 px-5 py-2 rounded-full text-base sm:text-2xl font-bold rotate-[-6deg] shadow-2xl border border-red-500/20 tracking-wide uppercase">Sold Out</span>
+                  <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] flex items-center justify-center">
+                    <span className="bg-surface/90 backdrop-blur-md text-red-500 px-5 py-2 rounded-full text-base sm:text-2xl font-bold rotate-[-6deg] shadow-2xl border border-red-500/20 tracking-wide uppercase">{getSoldOutText(menu.id)}</span>
                   </div>
                 )}
               </div>
