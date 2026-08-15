@@ -14,6 +14,13 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
   const [spinTrack, setSpinTrack] = useState<Menu[]>([]);
   const [winnerTrackIndex, setWinnerTrackIndex] = useState(0);
 
+  // Responsive sizes for Gacha wheel
+  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+  const itemWidth = isDesktop ? 192 : 128; // md:w-48 vs w-32
+  const gap = isDesktop ? 24 : 16; // md:gap-6 vs gap-4
+  const itemOffset = itemWidth / 2;
+  const totalItemWidth = itemWidth + gap;
+
   const handleRoll = () => {
     if (isRolling) return;
     
@@ -46,8 +53,20 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
     setIsRolling(true);
     setResult(null);
 
-    // Simulate animation time (duration = 4s)
+    // Play Spin SFX
+    const spinAudio = new Audio('/spin.mp3');
+    spinAudio.volume = 0.5;
+    spinAudio.loop = true;
+    spinAudio.play().catch(e => console.log('SFX play failed (Spin):', e));
+
+    // Simulate animation time (duration = 4s, spin stops visually at 3.5s)
     setTimeout(() => {
+      spinAudio.pause();
+      
+      const winAudio = new Audio('/win.mp3');
+      winAudio.volume = 0.7;
+      winAudio.play().catch(e => console.log('SFX play failed (Win):', e));
+      
       setResult(winner);
       setIsRolling(false);
     }, 4000);
@@ -79,37 +98,35 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
       <AnimatePresence>
         {isRolling && spinTrack.length > 0 && (
           <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
-            <div className="w-full max-w-3xl overflow-hidden relative border-y-2 border-primary/30 py-8 bg-surface/50">
+            <div className="w-full max-w-5xl overflow-hidden relative border-y-2 border-primary/30 py-10 md:py-20 bg-surface/50">
               {/* Center Pointer (Winner Indicator) */}
               <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1.5 bg-primary z-10 shadow-lg rounded-full"></div>
               
               {/* Gradient fade on edges */}
-              <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
 
               {/* Wheel Track */}
               <motion.div 
-                className="flex items-center gap-4 py-4"
+                className="flex items-center gap-4 md:gap-6 py-4 md:py-8"
                 initial={{ x: "50%" }}
-                // Item width is w-32 (128px) + gap-4 (16px) = 144px. 
-                // We offset by half of 128 (64px) so the item aligns exactly in the center.
-                animate={{ x: `calc(50% - ${winnerTrackIndex * 144}px - 64px)` }}
+                animate={{ x: `calc(50% - ${winnerTrackIndex * totalItemWidth}px - ${itemOffset}px)` }}
                 transition={{ duration: 3.5, ease: [0.15, 0.9, 0.2, 1] }}
               >
                 {spinTrack.map((menu, idx) => (
                   <div 
                     key={idx} 
-                    className="w-32 h-44 shrink-0 bg-surface rounded-2xl border border-border overflow-hidden flex flex-col items-center justify-center p-3 shadow-lg"
+                    className="w-32 h-44 md:w-48 md:h-64 shrink-0 bg-surface rounded-2xl md:rounded-3xl border border-border overflow-hidden flex flex-col items-center justify-center p-3 md:p-5 shadow-lg"
                   >
-                    <div className="w-16 h-16 rounded-full overflow-hidden mb-3 border-2 border-surface-hover shadow-sm">
+                    <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden mb-3 md:mb-5 border-2 border-surface-hover shadow-sm">
                       <img src={menu.image_url} alt={menu.name} className="w-full h-full object-cover" />
                     </div>
-                    <span className="text-xs font-bold text-center text-text-primary line-clamp-2">{menu.name}</span>
+                    <span className="text-xs md:text-sm font-bold text-center text-text-primary line-clamp-2">{menu.name}</span>
                   </div>
                 ))}
               </motion.div>
             </div>
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-text-primary font-black text-2xl animate-pulse tracking-tight">
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-text-primary font-black text-2xl md:text-3xl animate-pulse tracking-tight">
               กำลังสุ่มเมนู...
             </div>
           </div>
