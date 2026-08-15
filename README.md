@@ -25,9 +25,10 @@
 - **Live Commute Chat:** พื้นที่พูดคุยแบบ Real-time พร้อมระบบ Cooldown กันการสแปมข้อความ
 
 **ฝั่งแม่ค้า (Merchant View)**
-- **Store Management:** สร้างและจัดการร้านค้า ตั้งเวลาเปิด-ปิด (รูปแบบ 24H)
+- **Store Management:** สร้างและจัดการร้านค้า ตั้งเวลาเปิด-ปิด (รูปแบบ 24H) พร้อมปุ่มเปิด/ปิดร้านด่วนชั่วคราว
 - **Smart Image Cropper:** อัปโหลดและครอบตัดรูปภาพเมนูให้พอดีอัตราส่วน 4:3
 - **1-Click Sold Out:** แค่กดสับสวิตช์สถานะ ระบบจะอัปเดตไปที่ผู้ใช้ทุกคนทันที
+- **Optimistic UI & Undo Deletion:** ลบเมนูหรือร้านค้าได้อย่างลื่นไหล พร้อมระบบหน่วงเวลา 5 วินาทีให้กด Undo กู้คืนได้หากเผลอกดผิด
 - **Impeccable Design:** UI/UX ที่สะอาดตา รองรับการใช้งานทั้ง Dark และ Light Mode
 
 ### Tech Stack
@@ -79,6 +80,9 @@ npm run dev
 ```
 เปิดบราวเซอร์ไปที่ `http://localhost:5173` เพื่อใช้งาน!
 
+### การนำขึ้นระบบจริง (Deployment)
+โปรเจกต์นี้สามารถนำขึ้น **Vercel** หรือผู้ให้บริการอื่นๆ ได้ทันที โดยระบบได้เตรียมไฟล์ `vercel.json` เอาไว้ให้แล้ว เพื่อป้องกันปัญหา **404 Not Found** เวลาผู้ใช้กด Refresh หน้าเว็บ (เนื่องจากเป็นระบบ Single Page Application)
+
 <br />
 
 ---
@@ -101,9 +105,10 @@ npm run dev
 - **Live Commute Chat:** Real-time community chat with a built-in cooldown system to prevent spam.
 
 **Merchant View**
-- **Store Management:** Manage store details and operating hours (24H format).
+- **Store Management:** Manage store details, operating hours (24H format), and a quick Open/Close override toggle.
 - **Smart Image Cropper:** Upload and perfectly crop menu images to a 4:3 ratio.
 - **1-Click Sold Out:** Instantly toggle item availability, updating all active users immediately.
+- **Optimistic UI & Undo Deletion:** Smooth deletion flow with a 5-second undo toast to prevent accidental clicks.
 - **Impeccable Design:** Responsive UI/UX with seamless Dark and Light Mode support.
 
 ### Tech Stack
@@ -154,3 +159,6 @@ VITE_SUPABASE_ANON_KEY=[YOUR_SUPABASE_ANON_KEY]
 npm run dev
 ```
 Visit `http://localhost:5173` to view the app!
+
+### Deployment
+This project is ready to be deployed to **Vercel** or any static hosting service. We have included a `vercel.json` file to handle Single Page Application (SPA) routing, which prevents **404 Not Found** errors upon page refresh.
