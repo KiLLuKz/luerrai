@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ChefHat, Store, Moon, Sun } from 'lucide-react';
+import { Store, Moon, Sun } from 'lucide-react';
 import { LiveChat } from '../components/ui/LiveChat';
 import { useTheme } from '../context/ThemeContext';
 
@@ -15,8 +15,8 @@ export const MainLayout: React.FC = () => {
       <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="text-primary flex items-center justify-center">
-              <ChefHat size={28} strokeWidth={2.5} />
+            <div className="flex items-center justify-center">
+              <img src="/icons_transparent.svg" alt="LuerRai Logo" className="w-8 h-8 invert dark:invert-0 drop-shadow-sm" />
             </div>
             <div className="flex flex-col justify-center">
               <h1 className="font-black text-2xl tracking-tighter text-text-primary leading-none">เหลือไร?</h1>

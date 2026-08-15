@@ -225,9 +225,9 @@ export const StudentView: React.FC = () => {
       <div className="flex justify-center mb-8">
         <button
           onClick={() => setShowOnlyOpen(!showOnlyOpen)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-bold shadow-sm ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 ease-out active:scale-95 text-sm font-bold shadow-sm ${
             showOnlyOpen 
-              ? 'bg-primary border-primary text-white shadow-primary/20' 
+              ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20' 
               : 'bg-surface border-border text-text-secondary hover:text-text-primary hover:border-border'
           }`}
         >

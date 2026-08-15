@@ -169,7 +169,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
 
               <button 
                 onClick={() => setResult(null)}
-                className="w-full py-3.5 mt-6 rounded-[1.25rem] bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all duration-300 ease-out active:scale-95 shadow-md"
+                className="w-full py-3.5 mt-6 rounded-[1.25rem] bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg transition-all duration-300 ease-out active:scale-95 shadow-md shadow-emerald-500/20"
               >
                 จัดไป
               </button>
