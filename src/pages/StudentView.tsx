@@ -9,6 +9,7 @@ import type { Store, Menu } from '../types';
 import { Search, Store as StoreIcon, Utensils, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Fuse from 'fuse.js';
+import { useFollowStore } from '../hooks/useFollowStore';
 
 export const StudentView: React.FC = () => {
   const [stores, setStores] = useState<Store[]>([]);
@@ -20,6 +21,8 @@ export const StudentView: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showOnlyOpen, setShowOnlyOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  const { followedStores } = useFollowStore();
 
   useEffect(() => {
     fetchData();
@@ -129,13 +132,23 @@ export const StudentView: React.FC = () => {
     }
   };
 
-  const storesToRender = (searchQuery 
+  const baseStores = searchQuery 
     ? stores.filter(store => matchedStoreIds.has(store.id))
-    : stores).filter(store => showOnlyOpen ? isStoreOpen(store.open_time, store.close_time) : true);
+    : stores;
+
+  const storesToRender = baseStores
+    .filter(store => showOnlyOpen ? isStoreOpen(store.open_time, store.close_time) : true)
+    .sort((a, b) => {
+      const aFollowed = followedStores.includes(a.id);
+      const bFollowed = followedStores.includes(b.id);
+      if (aFollowed && !bFollowed) return -1;
+      if (!aFollowed && bFollowed) return 1;
+      return 0;
+    });
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-zinc-400 gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-text-secondary gap-4">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="animate-pulse">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
       </div>
@@ -151,13 +164,13 @@ export const StudentView: React.FC = () => {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
         <PanicGauge menus={menus} />
-        <GachaButton menus={menus} />
+        <GachaButton menus={menus} stores={stores} />
       </div>
 
-      {/* Search Bar with Autocomplete Dropdown and Open Filter */}
-      <div className="flex flex-col items-center justify-center mb-10 w-full max-w-2xl mx-auto space-y-4">
-        <div className="relative w-full" ref={searchRef}>
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500">
+      {/* Search Bar with Autocomplete Dropdown */}
+      <div className="sticky top-[76px] md:top-[92px] z-40 pt-2 pb-2 mb-4 px-4 -mx-4 md:px-0 md:mx-0 pointer-events-none">
+        <div className="relative w-full max-w-2xl mx-auto pointer-events-auto shadow-2xl rounded-full" ref={searchRef}>
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-secondary">
             <Search size={20} />
           </div>
           <input 
@@ -169,12 +182,12 @@ export const StudentView: React.FC = () => {
               setIsDropdownOpen(true);
             }}
             onFocus={() => setIsDropdownOpen(true)}
-            className="w-full bg-zinc-900 border-2 border-zinc-800 text-white rounded-full py-4 pl-12 pr-6 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-lg shadow-lg placeholder:text-zinc-600 font-medium"
+            className="w-full bg-surface border-2 border-border text-text-primary rounded-full py-4 pl-12 pr-6 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-lg shadow-lg placeholder:text-text-secondary font-medium"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 pr-5 flex items-center text-zinc-500 hover:text-white transition-colors text-sm font-bold"
+              className="absolute inset-y-0 right-0 pr-5 flex items-center text-text-secondary hover:text-text-primary transition-colors text-sm font-bold"
             >
               ล้าง
             </button>
@@ -187,17 +200,17 @@ export const StudentView: React.FC = () => {
                 initial={{ opacity: 0, y: -5, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -5, scale: 0.98 }}
-                className="absolute top-full mt-2 w-full bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col"
+                className="absolute top-full mt-2 w-full bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col"
               >
                 {suggestions.map((item, idx) => (
                   <button
                     key={`${item.type}-${item.id}-${idx}`}
                     onClick={() => handleSuggestionClick(item.name)}
-                    className="flex items-center gap-3 w-full text-left px-5 py-4 hover:bg-zinc-800 transition-colors border-b border-zinc-800/50 last:border-0"
+                    className="flex items-center gap-3 w-full text-left px-5 py-4 hover:bg-surface-hover transition-colors border-b border-border/50 last:border-0"
                   >
                     {item.type === 'store' ? <StoreIcon size={18} className="text-primary shrink-0" /> : <Utensils size={18} className="text-secondary shrink-0" />}
-                    <span className="text-white font-medium flex-1 truncate">{item.name}</span>
-                    <span className="text-xs font-bold text-zinc-500 shrink-0 bg-zinc-800/80 px-2 py-1 rounded-md">
+                    <span className="text-text-primary font-medium flex-1 truncate">{item.name}</span>
+                    <span className="text-xs font-bold text-text-secondary shrink-0 bg-surface-hover/80 px-2 py-1 rounded-md">
                       {item.type === 'store' ? 'ร้านค้า' : 'เมนู'}
                     </span>
                   </button>
@@ -206,18 +219,20 @@ export const StudentView: React.FC = () => {
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Open Now Toggle */}
+      {/* Open Now Toggle (Not sticky) */}
+      <div className="flex justify-center mb-8">
         <button
           onClick={() => setShowOnlyOpen(!showOnlyOpen)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-bold ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-bold shadow-sm ${
             showOnlyOpen 
-              ? 'bg-primary/10 border-primary/50 text-primary' 
-              : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700'
+              ? 'bg-primary border-primary text-white shadow-primary/20' 
+              : 'bg-surface border-border text-text-secondary hover:text-text-primary hover:border-border'
           }`}
         >
           <Clock size={16} />
-          {showOnlyOpen ? 'แสดงเฉพาะร้านที่กำลังเปิดอยู่' : 'แสดงร้านทั้งหมด'}
+          แสดงเฉพาะร้านที่เปิดอยู่
         </button>
       </div>
       
@@ -226,17 +241,17 @@ export const StudentView: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-20 text-zinc-500 bg-surface rounded-3xl border-2 border-zinc-800 border-dashed max-w-xl mx-auto"
+          className="text-center py-20 text-text-secondary bg-surface rounded-3xl border-2 border-border border-dashed max-w-xl mx-auto"
         >
-          <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mb-4 mx-auto text-zinc-600">
+          <div className="w-16 h-16 bg-surface-hover rounded-full flex items-center justify-center mb-4 mx-auto text-text-secondary">
             <Search size={32} />
           </div>
-          <p className="text-xl font-bold text-white mb-2">ไม่พบสิ่งที่ค้นหา</p>
+          <p className="text-xl font-bold text-text-primary mb-2">ไม่พบสิ่งที่ค้นหา</p>
           <p className="text-sm">ลองเปลี่ยนคำค้นหาเป็นเมนูอื่น หรือร้านอื่นดูนะ</p>
         </motion.div>
       ) : (
         <div className="space-y-12">
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="wait">
             {storesToRender.map(store => {
               const storeMenus = menus.filter(m => m.store_id === store.id);
               const storeMatch = directMatchedStoreIds.has(store.id);
@@ -245,6 +260,8 @@ export const StudentView: React.FC = () => {
               const menusToRender = (storeMatch || !searchQuery) 
                 ? storeMenus 
                 : storeMenus.filter(m => matchedMenuIds.has(m.id));
+              
+              const sortedMenusToRender = [...menusToRender].sort((a, b) => Number(b.is_available) - Number(a.is_available));
               
               if (menusToRender.length === 0 && !storeMatch) return null;
 
@@ -261,14 +278,14 @@ export const StudentView: React.FC = () => {
                   <StoreCard store={store} />
                   
                   <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                    <AnimatePresence>
-                      {menusToRender.map(menu => (
-                        <MenuCard key={menu.id} menu={menu} />
+                    <AnimatePresence mode="wait">
+                      {sortedMenusToRender.map((menu, idx) => (
+                        <MenuCard key={menu.id} menu={menu} store={store} delay={0.2 + (idx * 0.1)} />
                       ))}
                     </AnimatePresence>
                     
                     {menusToRender.length === 0 && (
-                      <motion.p layout className="text-zinc-500 italic py-4 col-span-full text-sm ml-2">
+                      <motion.p layout className="text-text-secondary italic py-4 col-span-full text-sm ml-2">
                         ร้านนี้ยังไม่มีเมนู
                       </motion.p>
                     )}

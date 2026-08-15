@@ -26,17 +26,17 @@ export const PanicGauge: React.FC<PanicGaugeProps> = ({ menus }) => {
   }
 
   return (
-    <div className="w-full h-full bg-surface p-6 rounded-2xl shadow-lg border border-zinc-800/60 flex flex-col justify-center">
+    <div className="w-full h-full bg-surface p-6 rounded-2xl shadow-lg border border-border/60 flex flex-col justify-center">
       <div className="flex justify-between items-end mb-4">
         <div>
-          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-1">Panic Gauge</h3>
-          <p className="text-xs font-medium text-zinc-500">{statusText}</p>
+          <h3 className="text-sm font-bold text-text-secondary uppercase tracking-wider mb-1">Panic Gauge</h3>
+          <p className="text-m font-medium text-text-secondary">{statusText}</p>
         </div>
-        <span className={`text-3xl font-black ${panicPercentage > 80 ? 'text-red-500' : 'text-white'}`}>
+        <span className={`text-3xl font-black ${panicPercentage > 80 ? 'text-red-500' : 'text-text-primary'}`}>
           {panicPercentage}%
         </span>
       </div>
-      <div className="h-4 w-full bg-zinc-900 rounded-full overflow-hidden relative shadow-inner">
+      <div className="h-4 w-full bg-surface rounded-full overflow-hidden relative shadow-inner">
         <motion.div 
           className={`h-full ${colorClass} relative`}
           initial={{ width: 0 }}

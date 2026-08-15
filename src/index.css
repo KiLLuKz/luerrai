@@ -1,25 +1,54 @@
 @import "tailwindcss";
 
+:root {
+  /* Light Mode (Clean White/Gray) */
+  --color-bg: #f4f4f5; /* Zinc 100 */
+  --color-srf: #ffffff; /* White */
+  --color-srf-hover: #f4f4f5; /* Zinc 100 */
+  --color-txt-primary: #18181b; /* Zinc 900 */
+  --color-txt-secondary: #71717a; /* Zinc 500 */
+  --color-bdr: #e4e4e7; /* Zinc 200 */
+  
+  --color-prm: #ec4899; /* Pink 500 */
+  --color-prm-dark: #db2777; /* Pink 600 */
+  --color-sec: #10b981; /* Emerald 500 */
+  --color-sec-dark: #059669; /* Emerald 600 */
+  --color-dgr: #ef4444; /* Red 500 */
+  --color-suc: #10b981; /* Emerald 500 */
+}
+
+:root.dark {
+  /* Dark Mode */
+  --color-bg: #09090b; /* Zinc 950 */
+  --color-srf: #18181b; /* Zinc 900 */
+  --color-srf-hover: #27272a; /* Zinc 800 */
+  --color-txt-primary: #fafafa; /* Zinc 50 */
+  --color-txt-secondary: #a1a1aa; /* Zinc 400 */
+  --color-bdr: #27272a; /* Zinc 800 */
+}
+
 @theme {
-  --color-primary: #ec4899; /* Pink 500 */
-  --color-primary-dark: #db2777; /* Pink 600 */
-  --color-secondary: #10b981; /* Emerald 500 */
-  --color-secondary-dark: #059669; /* Emerald 600 */
-  --color-background: #09090b; /* Zinc 950 - Deep dark */
-  --color-surface: #18181b; /* Zinc 900 */
-  --color-surface-hover: #27272a; /* Zinc 800 */
-  --color-text-primary: #fafafa; /* Zinc 50 */
-  --color-text-secondary: #a1a1aa; /* Zinc 400 */
-  --color-danger: #ef4444;
-  --color-success: #10b981;
+  --color-primary: var(--color-prm);
+  --color-primary-dark: var(--color-prm-dark);
+  --color-secondary: var(--color-sec);
+  --color-secondary-dark: var(--color-sec-dark);
+  --color-background: var(--color-bg);
+  --color-surface: var(--color-srf);
+  --color-surface-hover: var(--color-srf-hover);
+  --color-text-primary: var(--color-txt-primary);
+  --color-text-secondary: var(--color-txt-secondary);
+  --color-border: var(--color-bdr);
+  --color-danger: var(--color-dgr);
+  --color-success: var(--color-suc);
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  color: var(--color-txt-primary);
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   margin: 0;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @keyframes shimmer {

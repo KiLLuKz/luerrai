@@ -112,14 +112,14 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ imageFile, isOpen, o
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-lg shadow-2xl relative z-10 flex flex-col max-h-[90vh]"
+            className="bg-surface border border-border p-6 rounded-3xl w-full max-w-lg shadow-2xl relative z-10 flex flex-col max-h-[90vh]"
           >
             <div className="flex justify-between items-center mb-6 shrink-0">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <h3 className="text-xl font-bold text-text-primary flex items-center gap-2">
                 <CropIcon size={20} className="text-primary" />
                 ปรับสัดส่วนรูปภาพ (4:3)
               </h3>
-              <button onClick={onClose} className="text-zinc-400 hover:text-white p-1 transition-colors bg-zinc-800 rounded-full">
+              <button onClick={onClose} className="text-text-secondary hover:text-text-primary p-1 transition-colors bg-surface-hover rounded-full">
                 <X size={20} />
               </button>
             </div>
@@ -147,13 +147,13 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ imageFile, isOpen, o
             <div className="flex gap-3 mt-6 shrink-0">
               <button 
                 onClick={onClose}
-                className="flex-1 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold transition-colors"
+                className="flex-1 py-3 rounded-xl bg-surface-hover hover:bg-border text-text-primary font-bold transition-colors"
               >
                 ยกเลิก
               </button>
               <button 
                 onClick={handleConfirm}
-                className="flex-1 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-colors"
+                className="flex-1 py-3 rounded-xl bg-primary hover:bg-primary/90 text-text-primary font-bold transition-colors"
               >
                 ยืนยันรูปภาพ
               </button>

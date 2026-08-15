@@ -36,11 +36,11 @@ export const Toast: React.FC<ToastProps> = ({ message, type = 'info', isVisible,
           initial={{ opacity: 0, y: -50, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.9 }}
-          className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-zinc-900 border border-zinc-700/50 shadow-2xl shadow-black/50 px-5 py-4 rounded-2xl min-w-[300px]"
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-surface border border-border/50 shadow-2xl shadow-black/50 px-5 py-4 rounded-2xl min-w-[300px]"
         >
           {icons[type]}
-          <p className="text-white font-medium flex-1">{message}</p>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
+          <p className="text-text-primary font-medium flex-1">{message}</p>
+          <button onClick={onClose} className="text-text-secondary hover:text-text-primary transition-colors">
             <X size={20} />
           </button>
         </motion.div>
@@ -86,26 +86,26 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative z-10"
+            className="bg-surface border border-border p-6 rounded-3xl w-full max-w-sm shadow-2xl relative z-10"
           >
             <div className="flex flex-col items-center text-center mb-6">
               <div className={`p-4 rounded-full mb-4 ${isDestructive ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary'}`}>
                 {isDestructive ? <AlertTriangle size={32} /> : <Info size={32} />}
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">{message}</p>
+              <h3 className="text-xl font-bold text-text-primary mb-2">{title}</h3>
+              <p className="text-text-secondary text-sm leading-relaxed">{message}</p>
             </div>
             
             <div className="flex gap-3">
               <button 
                 onClick={onCancel}
-                className="flex-1 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold transition-colors"
+                className="flex-1 py-3 rounded-xl bg-surface-hover hover:bg-border text-text-primary font-bold transition-colors"
               >
                 {cancelText}
               </button>
               <button 
                 onClick={onConfirm}
-                className={`flex-1 py-3 rounded-xl font-bold transition-colors text-white ${
+                className={`flex-1 py-3 rounded-xl font-bold transition-colors text-text-primary ${
                   isDestructive ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-primary/90'
                 }`}
               >
