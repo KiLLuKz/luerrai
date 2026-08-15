@@ -47,8 +47,11 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
         onClick={() => {
           if (menu.is_available && (!store || store.is_open !== false)) setIsOpen(true);
         }}
-        className={`bg-surface border-2 border-border rounded-2xl sm:rounded-3xl overflow-hidden hover:border-primary/50 transition-all group shadow-lg flex flex-row sm:flex-col ${(!menu.is_available || (store && store.is_open === false)) ? 'opacity-60 grayscale-[0.5] cursor-default' : 'cursor-pointer'}`}
+        className={`bg-surface border-2 border-border rounded-2xl sm:rounded-3xl overflow-hidden hover:border-primary/50 transition-all group shadow-lg flex flex-row sm:flex-col relative ${(!menu.is_available || (store && store.is_open === false)) ? 'cursor-default' : 'cursor-pointer'}`}
       >
+        {(!menu.is_available || (store && store.is_open === false)) && (
+          <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px] z-10 pointer-events-none" />
+        )}
         <div className="relative w-28 sm:w-auto shrink-0 aspect-square sm:aspect-[4/3] overflow-hidden bg-surface-hover">
           <img 
             src={menu.image_url} 
@@ -57,7 +60,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
             loading="lazy"
           />
           {!menu.is_available && (
-            <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+            <div className="absolute inset-0 z-20 flex items-center justify-center">
               <span className="bg-surface/90 backdrop-blur-md text-red-500 px-3 py-1 sm:px-5 sm:py-2 rounded-full text-xs sm:text-base font-bold rotate-[-6deg] shadow-xl border border-red-500/20 tracking-wide uppercase">{getSoldOutText(menu.id)}</span>
             </div>
           )}
