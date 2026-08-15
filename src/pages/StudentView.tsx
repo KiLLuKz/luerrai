@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PanicGauge } from '../components/student/PanicGauge';
 import { GachaButton } from '../components/student/GachaButton';
 import { StoreCard } from '../components/ui/StoreCard';
@@ -6,14 +6,20 @@ import { MenuCard } from '../components/ui/MenuCard';
 import { storeService } from '../services/storeService';
 import { supabase } from '../config/supabaseClient';
 import type { Store, Menu } from '../types';
-import { Search } from 'lucide-react';
+import { Search, Store as StoreIcon, Utensils, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Fuse from 'fuse.js';
 
 export const StudentView: React.FC = () => {
   const [stores, setStores] = useState<Store[]>([]);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showOnlyOpen, setShowOnlyOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchData();
@@ -31,6 +37,17 @@ export const StudentView: React.FC = () => {
     };
   }, []);
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const fetchData = async () => {
     try {
       const [fetchedStores, fetchedMenus] = await Promise.all([
@@ -46,6 +63,76 @@ export const StudentView: React.FC = () => {
     }
   };
 
+  // ------------------------------
+  // FUZZY SEARCH SETUP
+  // ------------------------------
+  const searchData = useMemo(() => [
+    ...stores.map(s => ({ type: 'store', id: s.id, name: s.name, store_id: s.id })),
+    ...menus.map(m => ({ type: 'menu', id: m.id, name: m.name, store_id: m.store_id }))
+  ], [stores, menus]);
+
+  const fuse = useMemo(() => new Fuse(searchData, {
+    keys: ['name'],
+    threshold: 0.3, // Allows minor typos (e.g., "ประเพรา" matches "กะเพรา")
+  }), [searchData]);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery) return [];
+    return fuse.search(searchQuery).map(res => res.item);
+  }, [searchQuery, fuse]);
+
+  const suggestions = searchResults.slice(0, 5); // Limit to 5
+
+  const handleSuggestionClick = (name: string) => {
+    setSearchQuery(name);
+    setIsDropdownOpen(false); // Close dropdown on select
+  };
+
+  // ------------------------------
+  // FILTERING LOGIC
+  // ------------------------------
+  let matchedStoreIds = new Set<number>();
+  let matchedMenuIds = new Set<number>();
+  let directMatchedStoreIds = new Set<number>(); // Stores that matched by their own name
+
+  if (searchQuery) {
+    searchResults.forEach(item => {
+      if (item.type === 'store') {
+        matchedStoreIds.add(item.id);
+        directMatchedStoreIds.add(item.id);
+      }
+      if (item.type === 'menu') {
+        matchedStoreIds.add(item.store_id);
+        matchedMenuIds.add(item.id);
+      }
+    });
+  }
+
+  const isStoreOpen = (openTime: string, closeTime: string) => {
+    if (!openTime || !closeTime) return true;
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    
+    const parseTime = (t: string) => {
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    };
+    
+    const openMins = parseTime(openTime);
+    const closeMins = parseTime(closeTime);
+    
+    if (openMins <= closeMins) {
+      return currentMins >= openMins && currentMins <= closeMins;
+    } else {
+      // Handles overnight stores (e.g. 18:00 to 02:00)
+      return currentMins >= openMins || currentMins <= closeMins;
+    }
+  };
+
+  const storesToRender = (searchQuery 
+    ? stores.filter(store => matchedStoreIds.has(store.id))
+    : stores).filter(store => showOnlyOpen ? isStoreOpen(store.open_time, store.close_time) : true);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-zinc-400 gap-4">
@@ -54,17 +141,6 @@ export const StudentView: React.FC = () => {
       </div>
     );
   }
-
-  const normalizedQuery = searchQuery.toLowerCase().trim();
-
-  // กรองร้านค้า: ถ้าร้านชื่อตรง หรือมีเมนูชื่อตรง ให้โชว์ร้านนั้น
-  const storesToRender = stores.filter(store => {
-    if (!normalizedQuery) return true;
-    const storeMatch = store.name.toLowerCase().includes(normalizedQuery);
-    const storeMenus = menus.filter(m => m.store_id === store.id);
-    const menuMatch = storeMenus.some(m => m.name.toLowerCase().includes(normalizedQuery));
-    return storeMatch || menuMatch;
-  });
 
   return (
     <motion.div 
@@ -78,28 +154,74 @@ export const StudentView: React.FC = () => {
         <GachaButton menus={menus} />
       </div>
 
-      {/* Search Bar */}
-      <div className="relative mb-10 max-w-2xl mx-auto">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500">
-          <Search size={20} />
+      {/* Search Bar with Autocomplete Dropdown and Open Filter */}
+      <div className="flex flex-col items-center justify-center mb-10 w-full max-w-2xl mx-auto space-y-4">
+        <div className="relative w-full" ref={searchRef}>
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-500">
+            <Search size={20} />
+          </div>
+          <input 
+            type="text" 
+            placeholder="ค้นหาชื่อร้าน หรือชื่อเมนู (พิมพ์ผิดก็หาเจอ) เช่น ประเพรา..." 
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setIsDropdownOpen(true);
+            }}
+            onFocus={() => setIsDropdownOpen(true)}
+            className="w-full bg-zinc-900 border-2 border-zinc-800 text-white rounded-full py-4 pl-12 pr-6 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-lg shadow-lg placeholder:text-zinc-600 font-medium"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery('')}
+              className="absolute inset-y-0 right-0 pr-5 flex items-center text-zinc-500 hover:text-white transition-colors text-sm font-bold"
+            >
+              ล้าง
+            </button>
+          )}
+
+          {/* Suggestion Dropdown */}
+          <AnimatePresence>
+            {isDropdownOpen && searchQuery && suggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -5, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                className="absolute top-full mt-2 w-full bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col"
+              >
+                {suggestions.map((item, idx) => (
+                  <button
+                    key={`${item.type}-${item.id}-${idx}`}
+                    onClick={() => handleSuggestionClick(item.name)}
+                    className="flex items-center gap-3 w-full text-left px-5 py-4 hover:bg-zinc-800 transition-colors border-b border-zinc-800/50 last:border-0"
+                  >
+                    {item.type === 'store' ? <StoreIcon size={18} className="text-primary shrink-0" /> : <Utensils size={18} className="text-secondary shrink-0" />}
+                    <span className="text-white font-medium flex-1 truncate">{item.name}</span>
+                    <span className="text-xs font-bold text-zinc-500 shrink-0 bg-zinc-800/80 px-2 py-1 rounded-md">
+                      {item.type === 'store' ? 'ร้านค้า' : 'เมนู'}
+                    </span>
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        <input 
-          type="text" 
-          placeholder="ค้นหาชื่อร้าน หรือชื่อเมนู เช่น ข้าวมันไก่..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-zinc-900 border-2 border-zinc-800 text-white rounded-full py-4 pl-12 pr-6 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-lg shadow-lg placeholder:text-zinc-600 font-medium"
-        />
-        {searchQuery && (
-          <button 
-            onClick={() => setSearchQuery('')}
-            className="absolute inset-y-0 right-0 pr-5 flex items-center text-zinc-500 hover:text-white transition-colors text-sm font-bold"
-          >
-            ล้าง
-          </button>
-        )}
+
+        {/* Open Now Toggle */}
+        <button
+          onClick={() => setShowOnlyOpen(!showOnlyOpen)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-bold ${
+            showOnlyOpen 
+              ? 'bg-primary/10 border-primary/50 text-primary' 
+              : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700'
+          }`}
+        >
+          <Clock size={16} />
+          {showOnlyOpen ? 'แสดงเฉพาะร้านที่กำลังเปิดอยู่' : 'แสดงร้านทั้งหมด'}
+        </button>
       </div>
       
+      {/* Search Results */}
       {storesToRender.length === 0 ? (
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -117,14 +239,14 @@ export const StudentView: React.FC = () => {
           <AnimatePresence mode="popLayout">
             {storesToRender.map(store => {
               const storeMenus = menus.filter(m => m.store_id === store.id);
-              const storeMatch = store.name.toLowerCase().includes(normalizedQuery);
+              const storeMatch = directMatchedStoreIds.has(store.id);
               
               // ถ้าค้นหาตรงกับชื่อร้าน ให้โชว์ทุกเมนู, ถ้าค้นหาตรงแค่เมนู ให้กรองเฉพาะเมนูนั้นมาโชว์
-              const menusToRender = (storeMatch && normalizedQuery) 
+              const menusToRender = (storeMatch || !searchQuery) 
                 ? storeMenus 
-                : storeMenus.filter(m => !normalizedQuery || m.name.toLowerCase().includes(normalizedQuery));
+                : storeMenus.filter(m => matchedMenuIds.has(m.id));
               
-              if (menusToRender.length === 0 && !storeMatch) return null; // ไม่น่าจะเกิดขึ้นจาก logic ด้านบน แต่วางกันเหนียว
+              if (menusToRender.length === 0 && !storeMatch) return null;
 
               return (
                 <motion.section 
