@@ -27,10 +27,13 @@ export const StudentView: React.FC = () => {
   useEffect(() => {
     fetchData();
 
-    // Subscribe to realtime changes on menus
+    // Subscribe to realtime changes on menus and stores
     const subscription = supabase
-      .channel('public:menus')
+      .channel('public-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'menus' }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'stores' }, () => {
         fetchData();
       })
       .subscribe();

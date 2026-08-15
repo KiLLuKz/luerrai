@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '../config/supabaseClient';
 import { storeService } from '../services/storeService';
 import type { Store, Menu } from '../types';
 import { Plus, RotateCcw, X, Trash2, Image as ImageIcon, Check, ChevronDown } from 'lucide-react';
@@ -75,6 +76,21 @@ export const MerchantView: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to realtime changes on menus and stores
+    const subscription = supabase
+      .channel('merchant-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'menus' }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'stores' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const fetchData = async () => {
