@@ -54,7 +54,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
     setResult(null);
 
     // Play Spin SFX
-    const spinAudio = new Audio('/spin.mp3');
+    const spinAudio = new Audio(`${import.meta.env.BASE_URL}spin.mp3`);
     spinAudio.volume = 0.5;
     // Slow down the audio slightly so it stretches to match the visual end
     spinAudio.playbackRate = 0.85; 
@@ -65,7 +65,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
     setTimeout(() => {
       spinAudio.pause();
       
-      const winAudio = new Audio('/win.mp3');
+      const winAudio = new Audio(`${import.meta.env.BASE_URL}win.mp3`);
       winAudio.volume = 0.7;
       winAudio.play().catch(e => console.log('SFX play failed (Win):', e));
       
