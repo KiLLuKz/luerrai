@@ -78,7 +78,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
 
       <AnimatePresence>
         {isRolling && spinTrack.length > 0 && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
             <div className="w-full max-w-3xl overflow-hidden relative border-y-2 border-primary/30 py-8 bg-surface/50">
               {/* Center Pointer (Winner Indicator) */}
               <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1.5 bg-primary z-10 shadow-[0_0_15px_rgba(236,72,153,0.8)] rounded-full"></div>
@@ -120,7 +120,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
           >
             <div className="bg-surface border-2 border-primary/50 shadow-[0_0_30px_rgba(236,72,153,0.3)] p-6 rounded-[2rem] relative w-full max-w-sm max-h-[90vh] overflow-y-auto">
               <button 

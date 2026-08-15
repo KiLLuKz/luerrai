@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Light Mode (Clean White/Gray) */
   --color-bg: #f4f4f5; /* Zinc 100 */
