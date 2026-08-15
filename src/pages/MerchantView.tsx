@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { storeService } from '../services/storeService';
 import type { Store, Menu } from '../types';
-import { Plus, RotateCcw, X, Trash2, Image as ImageIcon, Check } from 'lucide-react';
+import { Plus, RotateCcw, X, Trash2, Image as ImageIcon, Check, ChevronDown } from 'lucide-react';
 import { Toast, ConfirmDialog, type AlertType } from '../components/ui/Alert';
 import { ImageCropper } from '../components/ui/ImageCropper';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -40,6 +40,12 @@ export const MerchantView: React.FC = () => {
   const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStoreId, setSelectedStoreId] = useState<number | ''>('');
+  const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
+  const [deletedStores, setDeletedStores] = useState<Set<number>>(new Set());
+  
+  // Undo Delete Store
+  const [deleteUndoToast, setDeleteUndoToast] = useState<{isOpen: boolean, storeId: number, storeName: string}>({isOpen: false, storeId: 0, storeName: ''});
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Modals state
   const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
@@ -140,6 +146,80 @@ export const MerchantView: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDeleteStore = () => {
+    if (!selectedStoreId) return;
+    const store = stores.find(s => s.id === selectedStoreId);
+    if (!store) return;
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'ลบร้านค้า',
+      message: `คุณแน่ใจหรือไม่ที่จะลบร้าน "${store.name}"? เมนูทั้งหมดในร้านจะถูกลบไปด้วยและไม่สามารถย้อนกลับได้เมื่อครบ 5 วินาที`,
+      isDestructive: true,
+      action: () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        
+        const targetStoreId = selectedStoreId as number;
+        setDeletedStores(prev => new Set(prev).add(targetStoreId));
+        
+        const availableStores = stores.filter(s => s.id !== targetStoreId && !deletedStores.has(s.id));
+        if (availableStores.length > 0) {
+          setSelectedStoreId(availableStores[0].id);
+        } else {
+          setSelectedStoreId('');
+        }
+        
+        setDeleteUndoToast({ isOpen: true, storeId: targetStoreId, storeName: store.name });
+        
+        if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+        deleteTimerRef.current = setTimeout(async () => {
+          setDeleteUndoToast({ isOpen: false, storeId: 0, storeName: '' });
+          try {
+            await storeService.deleteStore(targetStoreId);
+          } catch (error) {
+            console.error(error);
+            showToast('ลบร้านค้าไม่สำเร็จ', 'error');
+            setDeletedStores(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(targetStoreId);
+              return newSet;
+            });
+            if (!selectedStoreId) setSelectedStoreId(targetStoreId);
+          }
+        }, 5000);
+      }
+    });
+  };
+
+  const handleRestoreStore = () => {
+    if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+    
+    const storeIdToRestore = deleteUndoToast.storeId;
+    setDeletedStores(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(storeIdToRestore);
+      return newSet;
+    });
+    setSelectedStoreId(storeIdToRestore);
+    setDeleteUndoToast({ isOpen: false, storeId: 0, storeName: '' });
+  };
+  
+  const handleDismissDelete = () => {
+    if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current);
+    const targetStoreId = deleteUndoToast.storeId;
+    setDeleteUndoToast({ isOpen: false, storeId: 0, storeName: '' });
+    
+    storeService.deleteStore(targetStoreId).catch(error => {
+      console.error(error);
+      showToast('ลบร้านค้าไม่สำเร็จ', 'error');
+      setDeletedStores(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(targetStoreId);
+        return newSet;
+      });
+    });
   };
 
   const openCreateMenuModal = () => {
@@ -276,7 +356,7 @@ export const MerchantView: React.FC = () => {
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary tracking-tight">ระบบแม่ค้า</h1>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-text-primary tracking-tight">ระบบจัดการร้านค้า</h1>
         <button 
           onClick={() => setIsStoreModalOpen(true)}
           className="flex items-center gap-2 px-5 py-2.5 bg-surface-hover text-text-primary rounded-full text-sm font-bold hover:bg-border transition-colors shadow-sm"
@@ -285,19 +365,69 @@ export const MerchantView: React.FC = () => {
         </button>
       </div>
 
-      {/* Store Selector */}
-      <div className="bg-surface p-4 sm:p-5 rounded-3xl mb-8 border border-border/60 shadow-lg relative">
-        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">เลือกร้านค้าของคุณ</label>
-        <select 
-          className="w-full bg-surface border border-border text-text-primary rounded-2xl p-4 outline-none appearance-none font-bold text-lg sm:text-xl focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-          value={selectedStoreId}
-          onChange={(e) => setSelectedStoreId(Number(e.target.value))}
-        >
-          {stores.length === 0 && <option value="">ไม่มีร้านค้าในระบบ</option>}
-          {stores.map(store => (
-            <option key={store.id} value={store.id}>{store.name}</option>
-          ))}
-        </select>
+      {/* Store Selector & Delete Action */}
+      <div className="bg-surface p-4 sm:p-5 rounded-3xl mb-8 border border-border/60 shadow-sm relative flex flex-col sm:flex-row gap-4 sm:items-center">
+        <div className="flex-1 relative">
+          <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">เลือกร้านค้าของคุณ</label>
+          
+          {/* Custom Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
+              className="w-full bg-surface-hover border border-border text-text-primary rounded-2xl p-4 flex items-center justify-between font-bold text-lg sm:text-xl transition-all duration-300 ease-out hover:border-primary/50 focus:border-primary focus:ring-1 focus:ring-primary active:scale-[0.99] outline-none"
+            >
+              <span className="truncate">
+                {stores.length === 0 ? "ไม่มีร้านค้าในระบบ" : (selectedStore?.name || "เลือกร้านค้า...")}
+              </span>
+              <motion.div animate={{ rotate: isStoreDropdownOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronDown size={20} className="text-text-secondary" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {isStoreDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsStoreDropdownOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-surface border border-border rounded-2xl shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto"
+                  >
+                    {stores.filter(s => !deletedStores.has(s.id)).map(store => (
+                      <button
+                        key={store.id}
+                        onClick={() => {
+                          setSelectedStoreId(store.id);
+                          setIsStoreDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 font-bold transition-colors ${
+                          selectedStoreId === store.id 
+                            ? 'bg-primary/10 text-primary' 
+                            : 'text-text-primary hover:bg-surface-hover'
+                        }`}
+                      >
+                        {store.name}
+                      </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {selectedStore && (
+          <div className="flex sm:self-end">
+            <button 
+              onClick={handleDeleteStore}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 sm:py-4 bg-red-500/10 text-red-500 rounded-2xl text-sm font-bold hover:bg-red-500 hover:text-white transition-all duration-300 ease-out shadow-sm border border-red-500/20 hover:border-red-500"
+            >
+              <Trash2 size={18} /> <span className="sm:hidden lg:inline">ลบร้านค้า</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {selectedStore && (
@@ -510,6 +640,37 @@ export const MerchantView: React.FC = () => {
           </motion.div>
         </div>
       )}
+      </AnimatePresence>
+
+      {/* 3. Undo Delete Toast */}
+      <AnimatePresence>
+        {deleteUndoToast.isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-surface border border-border shadow-2xl p-4 rounded-2xl flex items-center gap-4 w-[90vw] max-w-sm"
+          >
+            <div className="flex-1">
+              <p className="text-sm font-bold text-text-primary line-clamp-1">คุณลบร้าน "{deleteUndoToast.storeName}" สำเร็จ</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button 
+                onClick={handleRestoreStore}
+                className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-bold hover:bg-emerald-600 transition-colors"
+              >
+                ย้อนกลับ
+              </button>
+              <button 
+                onClick={handleDismissDelete}
+                className="px-4 py-2 bg-surface-hover text-text-secondary rounded-xl text-xs font-bold hover:bg-border transition-colors"
+              >
+                ปิด
+              </button>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
     </div>

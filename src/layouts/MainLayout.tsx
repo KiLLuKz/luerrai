@@ -14,7 +14,7 @@ export const MainLayout: React.FC = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="flex items-center justify-center">
               <img src="/icons_transparent.svg" alt="LuerRai Logo" className="w-8 h-8 invert dark:invert-0 drop-shadow-sm" />
             </div>
@@ -22,7 +22,7 @@ export const MainLayout: React.FC = () => {
               <h1 className="font-black text-2xl tracking-tighter text-text-primary leading-none">เหลือไร?</h1>
               <p className="text-[10px] text-text-secondary font-bold tracking-[0.2em] uppercase mt-1 leading-none">Canteen Tracker</p>
             </div>
-          </div>
+          </Link>
           
           <div className="flex items-center gap-3">
             <button

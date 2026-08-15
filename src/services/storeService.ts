@@ -59,6 +59,11 @@ export const storeService = {
     if (error) throw error;
   },
 
+  async deleteStore(id: number) {
+    const { error } = await supabase.from('stores').delete().eq('id', id);
+    if (error) throw error;
+  },
+
   async resetAllMenus(storeId: number) {
     const { error } = await supabase.from('menus').update({ is_available: true }).eq('store_id', storeId);
     if (error) throw error;
