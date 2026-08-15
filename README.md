@@ -3,13 +3,13 @@
 > "เดินไปโรงอาหารทีไร ของหมดทุกที... ปัญหานี้จะหมดไป!"
 > "Walking to the canteen just to find out your food is sold out... Never again!"
 
-[🇹🇭 ภาษาไทย](#thai-version) | [🇬🇧 English Version](#english-version)
+[ภาษาไทย](#thai-version) | [English Version](#english-version)
 
 ---
 
 <div id="thai-version"></div>
 
-## 🇹🇭 ภาษาไทย
+## ภาษาไทย
 
 **เหลือไร (LuerRai)** คือ Web Application สำหรับนักเรียนและพ่อค้าแม่ค้าในโรงอาหาร ที่ช่วยให้สามารถเช็คสถานะร้านค้าและเมนูอาหารได้แบบ **Real-time** ว่าเมนูโปรด "เหลือ" หรือ "หมด" ไปแล้ว จะได้ไม่ต้องเดินฝ่าแดดร้อนๆ ไปเก้ออีกต่อไป!
 
@@ -37,6 +37,7 @@
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
 
 - **Frontend:** React + TypeScript + Vite
 - **Styling:** Tailwind CSS + Framer Motion
@@ -60,6 +61,96 @@
 
 **3. การตั้งค่าโปรเจกต์**
 ```bash
-git clone [https://github.com/KiLLuKz/luerrai.git](https://github.com/KiLLuKz/luerrai.git)
+git clone https://github.com/KiLLuKz/luerrai.git
 cd luerrai
 npm install
+```
+
+**4. ตั้งค่าตัวแปร (Environment Variables)**
+สร้างไฟล์ `.env` ไว้ที่ Root ของโปรเจกต์:
+```env
+VITE_SUPABASE_URL=https://[YOUR_SUPABASE_PROJECT_ID].supabase.co
+VITE_SUPABASE_ANON_KEY=[YOUR_SUPABASE_ANON_KEY]
+```
+
+**5. สั่งรันโปรเจกต์**
+```bash
+npm run dev
+```
+เปิดบราวเซอร์ไปที่ `http://localhost:5173` เพื่อใช้งาน!
+
+<br />
+
+---
+
+<div id="english-version"></div>
+
+## English Version
+
+**LuerRai** is a real-time web application designed for students and canteen vendors. It eliminates the frustration of walking to the canteen only to find out your favorite food is sold out by providing live status tracking for every menu item!
+
+### Features
+
+**Student View**
+- **Real-time Menu Tracking:** Instant updates on menu availability without refreshing the page (Powered by Supabase Realtime).
+- **Fuzzy Search & Autocomplete:** Quickly search for stores and dishes, even with typos.
+- **Open Now Filter:** Easily filter for currently open vendors.
+- **Favorite Store:** Save favorite stores for quick access.
+- **Panic Gauge:** A live anxiety meter indicating overall canteen food stock status.
+- **Gacha Button:** Randomize a meal selection when you cannot decide what to eat.
+- **Live Commute Chat:** Real-time community chat with a built-in cooldown system to prevent spam.
+
+**Merchant View**
+- **Store Management:** Manage store details and operating hours (24H format).
+- **Smart Image Cropper:** Upload and perfectly crop menu images to a 4:3 ratio.
+- **1-Click Sold Out:** Instantly toggle item availability, updating all active users immediately.
+- **Impeccable Design:** Responsive UI/UX with seamless Dark and Light Mode support.
+
+### Tech Stack
+
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+
+- **Frontend:** React + TypeScript + Vite
+- **Styling:** Tailwind CSS + Framer Motion
+- **Backend / Database:** Supabase (PostgreSQL + Realtime + Storage)
+- **Libraries:** `lucide-react`, `react-image-crop`, `fuse.js`
+
+### Quick Start
+
+This project is designed to be easily cloned and run without complex authentication setups.
+
+**1. Prerequisites**
+- Node.js (v18+)
+- [Supabase](https://supabase.com) Account
+
+**2. Setup Supabase**
+1. Create a new project in Supabase.
+2. Go to the **SQL Editor** and execute the following scripts in order:
+   - `schema.sql` (Creates required tables)
+   - `setup_storage.sql` (Sets up the storage bucket)
+   - `store_template.sql` (Populates initial mock data)
+
+**3. Setup Project**
+```bash
+git clone https://github.com/KiLLuKz/luerrai.git
+cd luerrai
+npm install
+```
+
+**4. Environment Variables**
+Create a `.env` file in the root directory:
+```env
+VITE_SUPABASE_URL=https://[YOUR_SUPABASE_PROJECT_ID].supabase.co
+VITE_SUPABASE_ANON_KEY=[YOUR_SUPABASE_ANON_KEY]
+```
+
+**5. Run**
+```bash
+npm run dev
+```
+Visit `http://localhost:5173` to view the app!
