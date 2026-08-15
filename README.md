@@ -68,7 +68,7 @@ npm install
 ```
 
 **4. ตั้งค่าตัวแปร (Environment Variables)**
-สร้างไฟล์ `.env` ไว้ที่ Root ของโปรเจกต์:
+คัดลอกไฟล์ `.env.example` แล้วเปลี่ยนชื่อเป็น `.env` จากนั้นใส่ข้อมูลจาก Supabase ของคุณลงไป:
 ```env
 VITE_SUPABASE_URL=https://[YOUR_SUPABASE_PROJECT_ID].supabase.co
 VITE_SUPABASE_ANON_KEY=[YOUR_SUPABASE_ANON_KEY]
@@ -81,7 +81,10 @@ npm run dev
 เปิดบราวเซอร์ไปที่ `http://localhost:5173` เพื่อใช้งาน!
 
 ### การนำขึ้นระบบจริง (Deployment)
-โปรเจกต์นี้สามารถนำขึ้น **Vercel** หรือผู้ให้บริการอื่นๆ ได้ทันที โดยระบบได้เตรียมไฟล์ `vercel.json` เอาไว้ให้แล้ว เพื่อป้องกันปัญหา **404 Not Found** เวลาผู้ใช้กด Refresh หน้าเว็บ (เนื่องจากเป็นระบบ Single Page Application)
+โปรเจกต์นี้ตั้งค่า Routing สำหรับ Single Page Application (SPA) เอาไว้ให้พร้อมนำขึ้น Hosting ยอดนิยมได้ทันที (เพื่อแก้ปัญหา Refresh แล้ว 404 Not Found):
+- **Vercel:** นำขึ้นได้เลยทันที (ใช้การตั้งค่าจากไฟล์ `vercel.json`)
+- **Netlify / Cloudflare Pages:** นำขึ้นได้เลยทันที (ใช้การตั้งค่าจากไฟล์ `public/_redirects`)
+- **Nginx/Apache หรือ Hosting อื่นๆ:** ต้องทำการตั้งค่า URL Rewrite เพื่อส่งทราฟฟิกไปที่ `index.html` ด้วยตัวเอง
 
 <br />
 
@@ -148,7 +151,7 @@ npm install
 ```
 
 **4. Environment Variables**
-Create a `.env` file in the root directory:
+Copy `.env.example` to `.env` and fill in your Supabase credentials:
 ```env
 VITE_SUPABASE_URL=https://[YOUR_SUPABASE_PROJECT_ID].supabase.co
 VITE_SUPABASE_ANON_KEY=[YOUR_SUPABASE_ANON_KEY]
@@ -161,4 +164,7 @@ npm run dev
 Visit `http://localhost:5173` to view the app!
 
 ### Deployment
-This project is ready to be deployed to **Vercel** or any static hosting service. We have included a `vercel.json` file to handle Single Page Application (SPA) routing, which prevents **404 Not Found** errors upon page refresh.
+This project includes pre-configured Single Page Application (SPA) routing to prevent **404 Not Found** errors upon page refresh:
+- **Vercel:** Ready to deploy out of the box (uses `vercel.json`).
+- **Netlify / Cloudflare Pages:** Ready to deploy out of the box (uses `public/_redirects`).
+- **Other Providers (Nginx/Apache):** You will need to manually configure URL rewriting to fallback to `index.html`.
