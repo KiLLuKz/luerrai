@@ -114,8 +114,9 @@ export const StudentView: React.FC = () => {
     });
   }
 
-  const isStoreOpen = (openTime: string, closeTime: string) => {
-    if (!openTime || !closeTime) return true;
+  const isStoreOpen = (store: typeof stores[0]) => {
+    if (store.is_open === false) return false;
+    if (!store.open_time || !store.close_time) return true;
     const now = new Date();
     const currentMins = now.getHours() * 60 + now.getMinutes();
     
@@ -124,13 +125,12 @@ export const StudentView: React.FC = () => {
       return h * 60 + m;
     };
     
-    const openMins = parseTime(openTime);
-    const closeMins = parseTime(closeTime);
+    const openMins = parseTime(store.open_time);
+    const closeMins = parseTime(store.close_time);
     
     if (openMins <= closeMins) {
       return currentMins >= openMins && currentMins <= closeMins;
     } else {
-      // Handles overnight stores (e.g. 18:00 to 02:00)
       return currentMins >= openMins || currentMins <= closeMins;
     }
   };
@@ -140,12 +140,21 @@ export const StudentView: React.FC = () => {
     : stores;
 
   const storesToRender = baseStores
-    .filter(store => showOnlyOpen ? isStoreOpen(store.open_time, store.close_time) : true)
+    .filter(store => showOnlyOpen ? isStoreOpen(store) : true)
     .sort((a, b) => {
       const aFollowed = followedStores.includes(a.id);
       const bFollowed = followedStores.includes(b.id);
+      
+      // 1. Followed stores always come first
       if (aFollowed && !bFollowed) return -1;
       if (!aFollowed && bFollowed) return 1;
+      
+      // 2. Open stores come before closed stores
+      const aOpen = a.is_open !== false;
+      const bOpen = b.is_open !== false;
+      if (aOpen && !bOpen) return -1;
+      if (!aOpen && bOpen) return 1;
+      
       return 0;
     });
 

@@ -45,9 +45,9 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
           layout: { delay: 0 }
         }}
         onClick={() => {
-          if (menu.is_available) setIsOpen(true);
+          if (menu.is_available && (!store || store.is_open !== false)) setIsOpen(true);
         }}
-        className={`bg-surface border-2 border-border rounded-2xl sm:rounded-3xl overflow-hidden hover:border-primary/50 transition-all group shadow-lg flex flex-row sm:flex-col ${menu.is_available ? 'cursor-pointer' : 'opacity-60 grayscale-[0.5] cursor-default'}`}
+        className={`bg-surface border-2 border-border rounded-2xl sm:rounded-3xl overflow-hidden hover:border-primary/50 transition-all group shadow-lg flex flex-row sm:flex-col ${(!menu.is_available || (store && store.is_open === false)) ? 'opacity-60 grayscale-[0.5] cursor-default' : 'cursor-pointer'}`}
       >
         <div className="relative w-28 sm:w-auto shrink-0 aspect-square sm:aspect-[4/3] overflow-hidden bg-surface-hover">
           <img 

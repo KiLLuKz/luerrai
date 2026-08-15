@@ -19,7 +19,9 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className="bg-surface rounded-2xl p-5 border border-border hover:border-border/80 shadow-sm hover:shadow-md transition-all duration-300 relative group flex justify-between items-center"
+      className={`bg-surface rounded-2xl p-5 border border-border shadow-sm transition-all duration-300 relative group flex justify-between items-center ${
+        !store.is_open ? 'opacity-50 grayscale hover:opacity-75' : 'hover:border-border/80 hover:shadow-md'
+      }`}
     >
       
       <div className="relative z-10">
