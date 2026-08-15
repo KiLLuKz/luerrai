@@ -59,7 +59,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
     spinAudio.loop = true;
     spinAudio.play().catch(e => console.log('SFX play failed (Spin):', e));
 
-    // Simulate animation time (duration = 4s, spin stops visually at 3.5s)
+    // Simulate animation time (duration = 4.75s, spin stops visually at 4.25s)
     setTimeout(() => {
       spinAudio.pause();
       
@@ -69,7 +69,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
       
       setResult(winner);
       setIsRolling(false);
-    }, 4000);
+    }, 4750);
   };
 
   const getStoreName = (storeId: number) => {
@@ -111,7 +111,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
                 className="flex items-center gap-4 md:gap-6 py-4 md:py-8"
                 initial={{ x: "50%" }}
                 animate={{ x: `calc(50% - ${winnerTrackIndex * totalItemWidth}px - ${itemOffset}px)` }}
-                transition={{ duration: 3.5, ease: [0.15, 0.9, 0.2, 1] }}
+                transition={{ duration: 4.25, ease: [0.15, 0.9, 0.2, 1] }}
               >
                 {spinTrack.map((menu, idx) => (
                   <div 
