@@ -11,6 +11,7 @@ interface GachaButtonProps {
 export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) => {
   const [result, setResult] = useState<Menu | null>(null);
   const [isRolling, setIsRolling] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [spinTrack, setSpinTrack] = useState<Menu[]>([]);
   const [winnerTrackIndex, setWinnerTrackIndex] = useState(0);
 
@@ -21,8 +22,8 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
   const itemOffset = itemWidth / 2;
   const totalItemWidth = itemWidth + gap;
 
-  const handleRoll = () => {
-    if (isRolling) return;
+  const handleRoll = async () => {
+    if (isRolling || isPreparing) return;
     
     const availableMenus = menus.filter(m => m.is_available);
     if (availableMenus.length === 0) {
@@ -50,8 +51,28 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
     
     setSpinTrack(track);
     setWinnerTrackIndex(stopIndex);
-    setIsRolling(true);
     setResult(null);
+    setIsPreparing(true);
+
+    // Preload all unique images in the track
+    const imageUrls = Array.from(new Set(track.map(m => m.image_url).filter(Boolean)));
+    const preloadPromises = imageUrls.map(url => {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.src = url as string;
+        img.onload = resolve;
+        img.onerror = resolve; // resolve anyway to avoid hanging
+      });
+    });
+
+    // Wait for images to load, with a max timeout of 2.5 seconds
+    await Promise.race([
+      Promise.all(preloadPromises),
+      new Promise(resolve => setTimeout(resolve, 2500))
+    ]);
+
+    setIsPreparing(false);
+    setIsRolling(true);
 
     // Play Spin SFX
     const spinAudio = new Audio(`${import.meta.env.BASE_URL}spin.mp3`);
@@ -88,13 +109,13 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
     <div className="w-full h-full">
       <button 
         onClick={handleRoll}
-        disabled={isRolling}
+        disabled={isRolling || isPreparing}
         className="w-full h-full min-h-[100px] rounded-[2rem] font-black text-xl bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-xl active:scale-[0.98] flex flex-row items-center justify-center gap-4 transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 group"
       >
         <div className="bg-white/20 p-3 rounded-full group-hover:scale-110 transition-transform duration-300 ease-out">
           <Dices size={28} strokeWidth={2.5} />
         </div>
-        <span className="tracking-tight">{isRolling ? "กำลังหมุน..." : "สุ่มเมนูกาชา"}</span>
+        <span className="tracking-tight">{isPreparing ? "กำลังโหลดรูปภาพ..." : isRolling ? "กำลังหมุน..." : "สุ่มเมนูกาชา"}</span>
       </button>
 
       <AnimatePresence>

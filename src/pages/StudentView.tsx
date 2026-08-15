@@ -254,7 +254,7 @@ export const StudentView: React.FC = () => {
         </motion.div>
       ) : (
         <div className="space-y-12">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {storesToRender.map(store => {
               const storeMenus = menus.filter(m => m.store_id === store.id);
               const storeMatch = directMatchedStoreIds.has(store.id);
@@ -281,7 +281,7 @@ export const StudentView: React.FC = () => {
                   <StoreCard store={store} />
                   
                   <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence>
                       {sortedMenusToRender.map((menu, idx) => (
                         <MenuCard key={menu.id} menu={menu} store={store} delay={0.2 + (idx * 0.1)} />
                       ))}
