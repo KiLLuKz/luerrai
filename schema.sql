@@ -47,3 +47,6 @@ INSERT INTO menus (store_id, name, description, image_url, price, is_available, 
 (2, 'มาม่าผัด', 'มาม่าผัดขี้เมา รสเด็ด', 'https://images.unsplash.com/photo-1612929633738-8fe01f7c8166?q=80&w=600&auto=format&fit=crop', 40, false, 0),
 (3, 'ข้าวผัดต้มยำ', 'เปรี้ยวเผ็ดจัดจ้าน', 'https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=600&auto=format&fit=crop', 50, true, 10);
 
+-- 4. อัปเดต Sequence ID อัตโนมัติ (ป้องกัน Error 23505)
+SELECT setval('stores_id_seq', (SELECT MAX(id) FROM stores));
+SELECT setval('menus_id_seq', (SELECT MAX(id) FROM menus));

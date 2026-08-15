@@ -73,3 +73,7 @@ INSERT INTO menus (store_id, name, description, image_url, price, is_available) 
 (10, 'ฝรั่ง (แช่บ๊วยจนชมพู)', 'ไม่เหลือรสฝรั่ง', 'https://placehold.co/800x600/png?text=Guava', 20.00, true),
 (10, 'สับปะรด (กัดลิ้น)', 'กินปุ๊บแสบลิ้นปั๊บ', 'https://placehold.co/800x600/png?text=Pineapple', 25.00, true),
 (10, 'แตงโม (ฉ่ำน้ำ)', 'หวานชื่นใจ', 'https://placehold.co/800x600/png?text=Watermelon', 20.00, false);
+
+-- อัปเดต Sequence ID อัตโนมัติ (ป้องกัน Error 23505)
+SELECT setval('stores_id_seq', (SELECT MAX(id) FROM stores));
+SELECT setval('menus_id_seq', (SELECT MAX(id) FROM menus));
