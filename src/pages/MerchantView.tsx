@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../config/supabaseClient';
 import { storeService } from '../services/storeService';
 import type { Store, Menu } from '../types';
-import { Plus, RotateCcw, X, Trash2, Image as ImageIcon, Check, ChevronDown } from 'lucide-react';
+import { Plus, RotateCcw, X, Trash2, Image as ImageIcon, Check, ChevronDown, Store as StoreIcon, Pencil } from 'lucide-react';
 import { Toast, ConfirmDialog, type AlertType } from '../components/ui/Alert';
 import { ImageCropper } from '../components/ui/ImageCropper';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,19 +43,28 @@ export const MerchantView: React.FC = () => {
   const [selectedStoreId, setSelectedStoreId] = useState<number | ''>('');
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const [deletedStores, setDeletedStores] = useState<Set<number>>(new Set());
+  const [deletedMenus, setDeletedMenus] = useState<Set<number>>(new Set());
   
-  // Undo Delete Store
+  // Undo Delete
   const [deleteUndoToast, setDeleteUndoToast] = useState<{isOpen: boolean, storeId: number, storeName: string}>({isOpen: false, storeId: 0, storeName: ''});
+  const [menuDeleteUndoToast, setMenuDeleteUndoToast] = useState<{isOpen: boolean, menuId: number, menuName: string}>({isOpen: false, menuId: 0, menuName: ''});
   const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const menuDeleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Modals state
   const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
+  const [isStoreEditModalOpen, setIsStoreEditModalOpen] = useState(false);
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   
   // Store form
   const [newStoreName, setNewStoreName] = useState('');
   const [newStoreOpen, setNewStoreOpen] = useState('08:00');
   const [newStoreClose, setNewStoreClose] = useState('16:00');
+
+  // Edit Store form
+  const [editStoreName, setEditStoreName] = useState('');
+  const [editStoreOpen, setEditStoreOpen] = useState('08:00');
+  const [editStoreClose, setEditStoreClose] = useState('16:00');
 
   // Menu form
   const [editingMenuId, setEditingMenuId] = useState<number | null>(null);
@@ -148,6 +157,8 @@ export const MerchantView: React.FC = () => {
 
   const handleCreateStore = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newStoreName.trim()) return;
+
     try {
       setIsSubmitting(true);
       const newStore = await storeService.createStore(newStoreName, newStoreOpen, newStoreClose);
@@ -155,12 +166,53 @@ export const MerchantView: React.FC = () => {
       setSelectedStoreId(newStore.id);
       setIsStoreModalOpen(false);
       setNewStoreName('');
-      showToast('สร้างร้านค้าสำเร็จ');
+      setNewStoreOpen('08:00');
+      setNewStoreClose('16:00');
+      showToast('สร้างร้านค้าสำเร็จ', 'success');
     } catch (error) {
       console.error(error);
       showToast('สร้างร้านค้าไม่สำเร็จ', 'error');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEditStoreSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editStoreName.trim() || !selectedStoreId) return;
+
+    try {
+      setIsSubmitting(true);
+      await storeService.updateStore(selectedStoreId as number, {
+        name: editStoreName,
+        open_time: editStoreOpen,
+        close_time: editStoreClose
+      });
+      await fetchData();
+      setIsStoreEditModalOpen(false);
+      showToast('แก้ไขข้อมูลร้านค้าสำเร็จ', 'success');
+    } catch (error) {
+      console.error(error);
+      showToast('แก้ไขข้อมูลร้านค้าไม่สำเร็จ', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openStoreEditModal = (store: Store) => {
+    setEditStoreName(store.name);
+    setEditStoreOpen(store.open_time.slice(0, 5));
+    setEditStoreClose(store.close_time.slice(0, 5));
+    setIsStoreEditModalOpen(true);
+  };
+
+  const handleToggleStoreStatus = async (id: number, isOpen: boolean) => {
+    try {
+      await storeService.updateStore(id, { is_open: isOpen });
+      await fetchData();
+      showToast(isOpen ? 'เปิดร้านแล้ว' : 'ปิดร้านชั่วคราว', 'success');
+    } catch (e) {
+      showToast('อัปเดตสถานะร้านไม่สำเร็จ', 'error');
     }
   };
 
@@ -299,29 +351,62 @@ export const MerchantView: React.FC = () => {
     }
   };
 
-  const confirmDeleteMenu = () => {
-    setConfirmDialog({
-      isOpen: true,
-      title: 'ลบเมนู',
-      message: `คุณต้องการลบเมนู "${menuName}" ใช่หรือไม่? (ไม่สามารถกู้คืนได้)`,
-      isDestructive: true,
-      action: async () => {
-        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
-        if (!editingMenuId) return;
-        try {
-          setIsSubmitting(true);
-          await storeService.deleteMenu(editingMenuId);
-          await fetchData();
-          setIsMenuModalOpen(false);
-          showToast('ลบเมนูสำเร็จ', 'success');
-        } catch (error) {
-          console.error(error);
-          showToast('ลบเมนูไม่สำเร็จ', 'error');
-        } finally {
-          setIsSubmitting(false);
-        }
-      }
+  const handleDeleteMenuOptimistic = (id: number, name: string) => {
+    // 1. Optimistically hide
+    setDeletedMenus(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
     });
+    
+    // 2. Show toast
+    setMenuDeleteUndoToast({ isOpen: true, menuId: id, menuName: name });
+    setIsMenuModalOpen(false);
+    
+    // 3. Set timer
+    if (menuDeleteTimerRef.current) clearTimeout(menuDeleteTimerRef.current);
+    menuDeleteTimerRef.current = setTimeout(async () => {
+      setMenuDeleteUndoToast({ isOpen: false, menuId: 0, menuName: '' });
+      try {
+        await storeService.deleteMenu(id);
+        fetchData();
+      } catch (e) {
+        showToast('ลบเมนูไม่สำเร็จ', 'error');
+        // revert
+        setDeletedMenus(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }
+    }, 5000);
+  };
+
+  const handleRestoreMenu = () => {
+    if (menuDeleteTimerRef.current) clearTimeout(menuDeleteTimerRef.current);
+    setDeletedMenus(prev => {
+      const next = new Set(prev);
+      next.delete(menuDeleteUndoToast.menuId);
+      return next;
+    });
+    setMenuDeleteUndoToast({ isOpen: false, menuId: 0, menuName: '' });
+  };
+
+  const handleDismissMenuDelete = async () => {
+    if (menuDeleteTimerRef.current) clearTimeout(menuDeleteTimerRef.current);
+    const id = menuDeleteUndoToast.menuId;
+    setMenuDeleteUndoToast({ isOpen: false, menuId: 0, menuName: '' });
+    try {
+      await storeService.deleteMenu(id);
+      fetchData();
+    } catch (e) {
+      showToast('ลบเมนูไม่สำเร็จ', 'error');
+      setDeletedMenus(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -337,7 +422,7 @@ export const MerchantView: React.FC = () => {
   }
 
   const selectedStore = stores.find(s => s.id === selectedStoreId);
-  const storeMenus = menus.filter(m => m.store_id === selectedStoreId);
+  const storeMenus = menus.filter(m => m.store_id === selectedStoreId && !deletedMenus.has(m.id));
 
   return (
     <div className="animate-in fade-in max-w-2xl mx-auto px-4 pb-20 pt-6">
@@ -435,12 +520,22 @@ export const MerchantView: React.FC = () => {
         </div>
 
         {selectedStore && (
-          <div className="flex sm:self-end">
+          <div className="flex sm:self-end gap-2">
             <button 
-              onClick={handleDeleteStore}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 sm:py-4 bg-red-500/10 text-red-500 rounded-2xl text-sm font-bold hover:bg-red-500 hover:text-white transition-all duration-300 ease-out shadow-sm border border-red-500/20 hover:border-red-500"
+              onClick={() => handleToggleStoreStatus(selectedStore.id, !selectedStore.is_open)}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 sm:py-4 rounded-2xl text-sm font-bold transition-all duration-300 ease-out shadow-sm border ${
+                selectedStore.is_open 
+                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500 hover:text-white' 
+                  : 'bg-surface-hover text-text-secondary border-border hover:bg-border'
+              }`}
             >
-              <Trash2 size={18} /> <span className="sm:hidden lg:inline">ลบร้านค้า</span>
+              <StoreIcon size={18} /> <span className="hidden sm:inline">{selectedStore.is_open ? 'เปิดร้าน' : 'ปิดร้าน'}</span>
+            </button>
+            <button 
+              onClick={() => openStoreEditModal(selectedStore)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 sm:py-4 bg-primary/10 text-primary rounded-2xl text-sm font-bold hover:bg-primary hover:text-white transition-all duration-300 ease-out shadow-sm border border-primary/20 hover:border-primary"
+            >
+              <Pencil size={18} /> <span className="hidden sm:inline">แก้ไขร้าน</span>
             </button>
           </div>
         )}
@@ -525,7 +620,57 @@ export const MerchantView: React.FC = () => {
 
       {/* MODALS */}
       
-      {/* 1. Create Store Modal */}
+      {/* 1. Edit Store Modal */}
+      <AnimatePresence>
+      {isStoreEditModalOpen && selectedStore && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+            onClick={() => setIsStoreEditModalOpen(false)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="bg-surface border border-border w-full max-w-lg rounded-[2rem] p-6 sm:p-8 relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl sm:text-3xl font-black text-text-primary">แก้ไขข้อมูลร้าน</h3>
+              <button onClick={() => setIsStoreEditModalOpen(false)} className="p-2 bg-surface-hover hover:bg-border rounded-full text-text-secondary transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleEditStoreSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-bold text-text-secondary mb-1.5 sm:mb-2">ชื่อร้านค้า</label>
+                <input required type="text" value={editStoreName} onChange={e => setEditStoreName(e.target.value)} className="w-full bg-surface-hover border border-border text-text-primary rounded-xl sm:rounded-2xl p-3 sm:p-4 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-secondary" placeholder="เช่น ร้านป้าแมว" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1.5 sm:mb-2">เวลาเปิด</label>
+                  <TimeSelect value={editStoreOpen} onChange={setEditStoreOpen} />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-text-secondary mb-1.5 sm:mb-2">เวลาปิด</label>
+                  <TimeSelect value={editStoreClose} onChange={setEditStoreClose} />
+                </div>
+              </div>
+              <div className="pt-4 flex flex-col gap-3">
+                <button type="submit" disabled={isSubmitting} className="w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-base sm:text-lg transition-all disabled:opacity-50 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30">
+                  {isSubmitting ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}
+                </button>
+                <button type="button" onClick={() => { setIsStoreEditModalOpen(false); handleDeleteStore(); }} className="w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold text-sm sm:text-base transition-colors flex items-center justify-center gap-2 border border-red-500/20">
+                  <Trash2 size={18} /> ลบร้านค้านี้ถาวร
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+      </AnimatePresence>
+
+      {/* 2. Create Store Modal */}
       <AnimatePresence>
       {isStoreModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -644,7 +789,7 @@ export const MerchantView: React.FC = () => {
               
               <div className="pt-2 flex gap-3">
                 {editingMenuId && (
-                  <button type="button" onClick={confirmDeleteMenu} disabled={isSubmitting} className="px-5 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold transition-colors shrink-0">
+                  <button type="button" onClick={() => handleDeleteMenuOptimistic(editingMenuId, menuName)} disabled={isSubmitting} className="px-5 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold transition-colors shrink-0">
                     <Trash2 size={24} />
                   </button>
                 )}
@@ -658,7 +803,7 @@ export const MerchantView: React.FC = () => {
       )}
       </AnimatePresence>
 
-      {/* 3. Undo Delete Toast */}
+      {/* 3. Undo Delete Store Toast */}
       <AnimatePresence>
         {deleteUndoToast.isOpen && (
           <motion.div
@@ -680,6 +825,37 @@ export const MerchantView: React.FC = () => {
               </button>
               <button 
                 onClick={handleDismissDelete}
+                className="px-4 py-2 bg-surface-hover text-text-secondary rounded-xl text-xs font-bold hover:bg-border transition-colors"
+              >
+                ปิด
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 4. Undo Delete Menu Toast */}
+      <AnimatePresence>
+        {menuDeleteUndoToast.isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-surface border border-border shadow-2xl p-4 rounded-2xl flex items-center gap-4 w-[90vw] max-w-sm"
+          >
+            <div className="flex-1">
+              <p className="text-sm font-bold text-text-primary line-clamp-1">คุณลบเมนู "{menuDeleteUndoToast.menuName}" สำเร็จ</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button 
+                onClick={handleRestoreMenu}
+                className="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-bold hover:bg-emerald-600 transition-colors"
+              >
+                ย้อนกลับ
+              </button>
+              <button 
+                onClick={handleDismissMenuDelete}
                 className="px-4 py-2 bg-surface-hover text-text-secondary rounded-xl text-xs font-bold hover:bg-border transition-colors"
               >
                 ปิด

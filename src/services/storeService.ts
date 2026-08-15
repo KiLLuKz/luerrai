@@ -42,6 +42,12 @@ export const storeService = {
     return data[0];
   },
 
+  async updateStore(id: number, updates: Partial<Store>) {
+    const { data, error } = await supabase.from('stores').update(updates).eq('id', id).select();
+    if (error) throw error;
+    return data[0];
+  },
+
   async createMenu(menu: Omit<Menu, 'id' | 'created_at'>) {
     const { data, error } = await supabase.from('menus').insert([menu]).select();
     if (error) throw error;
