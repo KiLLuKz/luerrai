@@ -16,12 +16,11 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
   return (
     <motion.div 
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 24 }}
-      className="bg-surface rounded-2xl p-5 border border-border shadow-lg relative group flex justify-between items-center"
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      className="bg-surface rounded-2xl p-5 border border-border hover:border-border/80 shadow-sm hover:shadow-md transition-all duration-300 relative group flex justify-between items-center"
     >
-      <div className="absolute inset-0 rounded-2xl overflow-hidden bg-gradient-to-r from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
       
       <div className="relative z-10">
         <h3 className="text-xl md:text-2xl font-extrabold text-text-primary flex items-center gap-3">
@@ -44,11 +43,11 @@ export const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         onMouseLeave={() => setShowTooltip(false)}
       >
         <motion.button
-          whileTap={{ scale: 0.9 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => toggleFollow(store.id)}
-          className={`p-3 rounded-full transition-all ${
+          className={`p-3 rounded-full transition-all duration-300 ease-out ${
             followed 
-              ? 'bg-primary/20 text-primary shadow-[0_0_15px_rgba(236,72,153,0.3)]' 
+              ? 'bg-primary/10 text-primary border border-primary/20' 
               : 'bg-transparent border border-border text-text-secondary hover:bg-surface-hover hover:text-text-primary dark:bg-zinc-800 dark:border-transparent dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white'
           }`}
         >

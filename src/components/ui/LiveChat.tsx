@@ -172,12 +172,13 @@ export const LiveChat: React.FC = () => {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-text-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/30 z-50 hover:bg-primary/90 transition-colors"
+            className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-md hover:shadow-xl z-50 transition-shadow duration-300 ease-out"
           >
-            <MessageCircle size={28} />
+            <MessageCircle size={26} strokeWidth={2.5} />
           </motion.button>
         )}
       </AnimatePresence>
@@ -186,9 +187,10 @@ export const LiveChat: React.FC = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9, transition: { duration: 0.2 } }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
             className="fixed bottom-6 right-6 w-[90vw] sm:w-[350px] h-[450px] bg-surface border border-border rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
           >
             {/* Header */}

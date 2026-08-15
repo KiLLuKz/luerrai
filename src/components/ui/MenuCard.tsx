@@ -25,8 +25,8 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
         }}
         transition={{ 
           type: "spring", 
-          stiffness: 350, 
-          damping: 25,
+          stiffness: 400, 
+          damping: 30,
           opacity: { delay },
           scale: { delay },
           y: { delay },
@@ -45,8 +45,8 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
             loading="lazy"
           />
           {!menu.is_available && (
-            <div className="absolute inset-0 bg-background/60 flex items-center justify-center backdrop-blur-[2px]">
-              <span className="bg-red-500 text-white px-3 py-1 sm:px-5 sm:py-2 rounded-full text-xs sm:text-base font-bold rotate-[-12deg] shadow-lg border border-red-400">หมดแล้ว!</span>
+            <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
+              <span className="bg-surface/90 backdrop-blur-md text-red-500 px-3 py-1 sm:px-5 sm:py-2 rounded-full text-xs sm:text-base font-bold rotate-[-6deg] shadow-xl border border-red-500/20 tracking-wide uppercase">Sold Out</span>
             </div>
           )}
         </div>
@@ -78,10 +78,11 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
               onClick={() => setIsOpen(false)}
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-surface border-2 border-primary/50 shadow-[0_0_30px_rgba(236,72,153,0.3)] rounded-[2rem] overflow-hidden relative w-full max-w-sm sm:max-w-4xl max-h-[90vh] z-10 flex flex-col sm:flex-row"
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              className="bg-surface border border-border shadow-2xl rounded-[2rem] overflow-hidden relative w-full max-w-sm sm:max-w-4xl max-h-[90vh] z-10 flex flex-col sm:flex-row"
             >
               <button 
                 onClick={() => setIsOpen(false)} 
@@ -93,8 +94,8 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
               <div className="w-full sm:w-1/2 aspect-square sm:aspect-[4/3] bg-surface-hover relative shrink-0">
                 <img src={menu.image_url} alt={menu.name} className="w-full h-full object-cover" />
                 {!menu.is_available && (
-                  <div className="absolute inset-0 bg-background/60 flex items-center justify-center backdrop-blur-[2px]">
-                    <span className="bg-red-500 text-white px-5 py-2 rounded-full text-base sm:text-2xl font-bold rotate-[-12deg] shadow-lg border border-red-400">หมดแล้ว!</span>
+                  <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
+                    <span className="bg-surface/90 backdrop-blur-md text-red-500 px-5 py-2 rounded-full text-base sm:text-2xl font-bold rotate-[-6deg] shadow-2xl border border-red-500/20 tracking-wide uppercase">Sold Out</span>
                   </div>
                 )}
               </div>
@@ -107,7 +108,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ menu, store, delay = 0 }) =>
                   </div>
                 )}
                 
-                <h4 className="text-2xl sm:text-4xl font-black text-text-primary leading-tight mb-2 sm:mb-3">{menu.name}</h4>
+                <h4 className="text-2xl sm:text-4xl font-black text-text-primary leading-none tracking-tighter mb-2 sm:mb-3">{menu.name}</h4>
                 
                 {store && (
                   <div className="flex items-center justify-center sm:justify-start gap-1.5 text-text-secondary text-xs sm:text-sm mb-2 sm:mb-4">

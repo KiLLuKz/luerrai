@@ -15,26 +15,26 @@ export const MainLayout: React.FC = () => {
       <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-primary to-secondary p-2 rounded-xl text-text-primary shadow-lg shadow-primary/20">
-              <ChefHat size={22} />
+            <div className="text-primary flex items-center justify-center">
+              <ChefHat size={28} strokeWidth={2.5} />
             </div>
-            <div>
-              <h1 className="font-bold text-xl tracking-tight text-text-primary">เหลือไร?</h1>
-              <p className="text-xs text-primary font-semibold tracking-wide uppercase">Canteen Tracker</p>
+            <div className="flex flex-col justify-center">
+              <h1 className="font-black text-2xl tracking-tighter text-text-primary leading-none">เหลือไร?</h1>
+              <p className="text-[10px] text-text-secondary font-bold tracking-[0.2em] uppercase mt-1 leading-none">Canteen Tracker</p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-full bg-surface-hover hover:bg-border/50 text-text-secondary hover:text-text-primary transition-colors border border-border"
+              className="p-2.5 rounded-full bg-transparent hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-all duration-300 ease-out active:scale-95 border border-transparent hover:border-border"
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === 'dark' ? <Sun size={18} strokeWidth={2.5} /> : <Moon size={18} strokeWidth={2.5} />}
             </button>
             <Link 
               to={isMerchant ? '/' : '/merchant'}
-            className="text-sm font-medium px-4 py-2 rounded-full bg-surface-hover hover:bg-border text-text-primary flex items-center gap-2 transition-all border border-border hover:border-primary/50"
+            className="text-sm font-bold px-4 py-2 rounded-full bg-surface-hover text-text-primary flex items-center gap-2 transition-all duration-300 ease-out active:scale-95 border border-border hover:border-primary/50"
           >
             {isMerchant ? 'หน้าหลักนักเรียน' : (
               <>

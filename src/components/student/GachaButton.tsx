@@ -68,12 +68,12 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
       <button 
         onClick={handleRoll}
         disabled={isRolling}
-        className="w-full h-full min-h-[100px] rounded-2xl font-black text-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(236,72,153,0.3)] hover:shadow-[0_0_25px_rgba(236,72,153,0.5)] flex flex-row items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+        className="w-full h-full min-h-[100px] rounded-[2rem] font-black text-xl bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-xl active:scale-[0.98] flex flex-row items-center justify-center gap-4 transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 group"
       >
-        <div className="bg-white/20 p-2.5 rounded-full group-hover:scale-110 transition-transform">
-          <Dices size={24} />
+        <div className="bg-white/20 p-3 rounded-full group-hover:scale-110 transition-transform duration-300 ease-out">
+          <Dices size={28} strokeWidth={2.5} />
         </div>
-        <span>{isRolling ? "กำลังหมุน..." : "สุ่มเมนูกาชา!"}</span>
+        <span className="tracking-tight">{isRolling ? "กำลังหมุน..." : "สุ่มเมนูกาชา"}</span>
       </button>
 
       <AnimatePresence>
@@ -81,7 +81,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
           <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
             <div className="w-full max-w-3xl overflow-hidden relative border-y-2 border-primary/30 py-8 bg-surface/50">
               {/* Center Pointer (Winner Indicator) */}
-              <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1.5 bg-primary z-10 shadow-[0_0_15px_rgba(236,72,153,0.8)] rounded-full"></div>
+              <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1.5 bg-primary z-10 shadow-lg rounded-full"></div>
               
               {/* Gradient fade on edges */}
               <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
@@ -109,7 +109,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
                 ))}
               </motion.div>
             </div>
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-text-primary font-black text-2xl animate-pulse">
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-text-primary font-black text-2xl animate-pulse tracking-tight">
               กำลังสุ่มเมนู...
             </div>
           </div>
@@ -122,7 +122,7 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
             exit={{ opacity: 0, scale: 0.8 }}
             className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
           >
-            <div className="bg-surface border-2 border-primary/50 shadow-[0_0_30px_rgba(236,72,153,0.3)] p-6 rounded-[2rem] relative w-full max-w-sm max-h-[90vh] overflow-y-auto">
+            <div className="bg-surface border border-border shadow-2xl p-6 rounded-[2rem] relative w-full max-w-sm max-h-[90vh] overflow-y-auto">
               <button 
                 onClick={() => setResult(null)} 
                 className="absolute top-4 right-4 text-text-secondary hover:text-text-primary bg-surface-hover hover:bg-border p-2 rounded-full transition-colors z-10"
@@ -131,15 +131,15 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
               </button>
               
               <div className="text-center mb-6 pt-2">
-                <div className="text-primary font-black text-lg mb-4 uppercase tracking-widest">
+                <div className="text-primary font-bold text-xs mb-4 uppercase tracking-[0.2em]">
                   Result
                 </div>
                 
-                <div className="w-40 h-40 mx-auto rounded-3xl overflow-hidden shadow-2xl mb-5 border-4 border-surface bg-surface-hover">
+                <div className="w-40 h-40 mx-auto rounded-3xl overflow-hidden shadow-lg mb-5 border border-border bg-surface-hover">
                   <img src={result.image_url} alt={result.name} className="w-full h-full object-cover" />
                 </div>
                 
-                <h4 className="text-2xl sm:text-3xl font-black text-text-primary leading-tight mb-2">{result.name}</h4>
+                <h4 className="text-2xl sm:text-3xl font-black text-text-primary leading-none tracking-tighter mb-3">{result.name}</h4>
                 
                 <div className="flex items-center justify-center gap-2 text-text-secondary mb-3 font-medium bg-surface-hover mx-auto w-fit px-4 py-1.5 rounded-full">
                   <StoreIcon size={16} className="text-primary" />
@@ -169,9 +169,9 @@ export const GachaButton: React.FC<GachaButtonProps> = ({ menus, stores = [] }) 
 
               <button 
                 onClick={() => setResult(null)}
-                className="w-full py-3.5 mt-6 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all hover:shadow-lg hover:shadow-primary/20"
+                className="w-full py-3.5 mt-6 rounded-[1.25rem] bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all duration-300 ease-out active:scale-95 shadow-md"
               >
-                โอเค จัดไป!
+                จัดไป
               </button>
             </div>
           </motion.div>

@@ -241,7 +241,7 @@ export const StudentView: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-20 text-text-secondary bg-surface rounded-3xl border-2 border-border border-dashed max-w-xl mx-auto"
+          className="text-center py-20 text-text-secondary bg-surface rounded-3xl border border-border/50 shadow-sm max-w-xl mx-auto"
         >
           <div className="w-16 h-16 bg-surface-hover rounded-full flex items-center justify-center mb-4 mx-auto text-text-secondary">
             <Search size={32} />
