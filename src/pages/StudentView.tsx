@@ -187,7 +187,7 @@ export const StudentView: React.FC = () => {
           </div>
           <input 
             type="text" 
-            placeholder="ค้นหาชื่อร้าน หรือชื่อเมนู (พิมพ์ผิดก็หาเจอ) เช่น ประเพรา..." 
+            placeholder="ค้นหาชื่อร้าน หรือชื่อเมนู" 
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);

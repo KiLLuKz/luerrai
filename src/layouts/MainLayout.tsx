@@ -2,12 +2,16 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Store, Moon, Sun } from 'lucide-react';
 import { LiveChat } from '../components/ui/LiveChat';
+import { Footer } from '../components/ui/Footer';
+import { CookieBanner } from '../components/ui/CookieBanner';
+import { TermsModal } from '../components/ui/TermsModal';
 import { useTheme } from '../context/ThemeContext';
 
 export const MainLayout: React.FC = () => {
   const location = useLocation();
   const isMerchant = location.pathname.includes('/merchant');
   const { theme, toggleTheme } = useTheme();
+  const [isTermsOpen, setIsTermsOpen] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-background text-text-primary pb-20 overflow-x-clip relative font-sans transition-colors duration-300">
@@ -55,6 +59,15 @@ export const MainLayout: React.FC = () => {
 
       {/* Global Live Chat */}
       <LiveChat />
+
+      {/* Footer */}
+      <Footer onOpenTerms={() => setIsTermsOpen(true)} />
+
+      {/* Cookie Banner */}
+      <CookieBanner />
+
+      {/* Terms Modal */}
+      <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
     </div>
   );
 };
