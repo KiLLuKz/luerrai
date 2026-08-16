@@ -14,7 +14,7 @@ export const MainLayout: React.FC = () => {
   const [isTermsOpen, setIsTermsOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-text-primary pb-20 overflow-x-clip relative font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-background text-text-primary flex flex-col overflow-x-clip relative font-sans transition-colors duration-300">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -53,7 +53,7 @@ export const MainLayout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 w-full">
+      <main className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 w-full flex-1">
         <Outlet />
       </main>
 
