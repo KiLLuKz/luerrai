@@ -110,8 +110,8 @@ export const MerchantView: React.FC = () => {
       ]);
       setStores(fetchedStores);
       setMenus(fetchedMenus);
-      if (fetchedStores.length > 0 && selectedStoreId === '') {
-        setSelectedStoreId(fetchedStores[0].id);
+      if (fetchedStores.length > 0) {
+        setSelectedStoreId(prev => prev === '' ? fetchedStores[0].id : prev);
       }
     } catch (error) {
       console.error(error);
