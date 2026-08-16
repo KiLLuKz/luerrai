@@ -3,6 +3,8 @@
 > "เดินไปโรงอาหารทีไร ของหมดทุกที... ปัญหานี้จะหมดไป!"
 > "Walking to the canteen just to find out your food is sold out... Never again!"
 
+🚀 **Live Demo:** [https://luerrai.vercel.app](https://luerrai.vercel.app)
+
 [ภาษาไทย](#thai-version) | [English Version](#english-version)
 
 ---
