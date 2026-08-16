@@ -3,6 +3,8 @@ import { PanicGauge } from '../components/student/PanicGauge';
 import { GachaButton } from '../components/student/GachaButton';
 import { StoreCard } from '../components/ui/StoreCard';
 import { MenuCard } from '../components/ui/MenuCard';
+import { StoreCardSkeleton } from '../components/ui/StoreCardSkeleton';
+import { MenuCardSkeleton } from '../components/ui/MenuCardSkeleton';
 import { storeService } from '../services/storeService';
 import { supabase } from '../config/supabaseClient';
 import type { Store, Menu } from '../types';
@@ -160,9 +162,18 @@ export const StudentView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] text-text-secondary gap-4">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="animate-pulse">กำลังโหลดข้อมูลจากฐานข้อมูล...</p>
+      <div className="flex flex-col gap-6 w-full">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex flex-col gap-4">
+            <StoreCardSkeleton />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <MenuCardSkeleton />
+              <MenuCardSkeleton />
+              <MenuCardSkeleton />
+              <MenuCardSkeleton />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -253,13 +264,14 @@ export const StudentView: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-20 text-text-secondary bg-surface rounded-3xl border border-border/50 shadow-sm max-w-xl mx-auto"
+          className="text-center py-24 px-4 flex flex-col items-center justify-center min-h-[40vh]"
         >
-          <div className="w-16 h-16 bg-surface-hover rounded-full flex items-center justify-center mb-4 mx-auto text-text-secondary">
-            <Search size={32} />
+          <div className="bg-surface border border-border shadow-sm w-24 h-24 rounded-full flex items-center justify-center mb-6 relative">
+            <span className="text-5xl absolute -top-2 -right-2 rotate-12">🤔</span>
+            <span className="text-4xl grayscale opacity-50">🍔</span>
           </div>
-          <p className="text-xl font-bold text-text-primary mb-2">ไม่พบสิ่งที่ค้นหา</p>
-          <p className="text-sm">ลองเปลี่ยนคำค้นหาเป็นเมนูอื่น หรือร้านอื่นดูนะ</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-text-primary mb-2">ไม่พบร้านค้าที่คุณค้นหา</h2>
+          <p className="text-text-secondary text-sm sm:text-base">ลองพิมพ์คำค้นหาใหม่ หรือลบตัวกรองออกดูนะเผื่อจะเจอ</p>
         </motion.div>
       ) : (
         <div className="space-y-12">
@@ -291,16 +303,18 @@ export const StudentView: React.FC = () => {
                   
                   <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                     <AnimatePresence>
-                      {sortedMenusToRender.map((menu, idx) => (
-                        <MenuCard key={menu.id} menu={menu} store={store} delay={0.2 + (idx * 0.1)} />
-                      ))}
+                      {storeMenus.length === 0 ? (
+                        <div className="col-span-full py-10 flex flex-col items-center justify-center bg-surface-hover/40 rounded-2xl border border-border/60 border-dashed">
+                          <span className="text-4xl mb-3 grayscale opacity-60">🍽️</span>
+                          <p className="text-text-primary text-base font-bold mb-1">ร้านนี้ยังไม่มีเมนู</p>
+                          <p className="text-text-secondary text-sm">สงสัยแม่ค้ายังไม่ได้เพิ่มเมนูเข้ามาในระบบ...</p>
+                        </div>
+                      ) : (
+                        sortedMenusToRender.map((menu, idx) => (
+                          <MenuCard key={menu.id} menu={menu} store={store} delay={0.2 + (idx * 0.1)} />
+                        ))
+                      )}
                     </AnimatePresence>
-                    
-                    {menusToRender.length === 0 && (
-                      <motion.p layout className="text-text-secondary italic py-4 col-span-full text-sm ml-2">
-                        ร้านนี้ยังไม่มีเมนู
-                      </motion.p>
-                    )}
                   </motion.div>
                 </motion.section>
               );
