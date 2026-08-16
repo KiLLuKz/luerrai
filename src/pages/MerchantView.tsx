@@ -42,6 +42,7 @@ export const MerchantView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedStoreId, setSelectedStoreId] = useState<number | ''>('');
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
+  const [isTogglingStore, setIsTogglingStore] = useState(false);
   const [deletedStores, setDeletedStores] = useState<Set<number>>(new Set());
   const [deletedMenus, setDeletedMenus] = useState<Set<number>>(new Set());
   
@@ -207,12 +208,20 @@ export const MerchantView: React.FC = () => {
   };
 
   const handleToggleStoreStatus = async (id: number, isOpen: boolean) => {
+    if (isTogglingStore) {
+      showToast('กรุณารอสักครู่ ระบบกำลังทำงาน...', 'error');
+      return;
+    }
+
     try {
+      setIsTogglingStore(true);
       await storeService.updateStore(id, { is_open: isOpen });
       await fetchData();
       showToast(isOpen ? 'เปิดร้านแล้ว' : 'ปิดร้านชั่วคราว', 'success');
     } catch (e) {
       showToast('อัปเดตสถานะร้านไม่สำเร็จ', 'error');
+    } finally {
+      setTimeout(() => setIsTogglingStore(false), 800);
     }
   };
 
