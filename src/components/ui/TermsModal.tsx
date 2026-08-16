@@ -60,7 +60,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
 
               <h3 className="text-lg font-bold text-text-primary mb-2">5. ข้อจำกัดความรับผิดชอบ (Disclaimer)</h3>
               <p className="mb-4">
-                ระบบนี้ถูกสร้างขึ้นเพื่อจุดประสงค์ในการประกวดแข่งขัน Hackathon และเพื่ออำนวยความสะดวกในโรงอาหาร ผู้พัฒนาขอสงวนสิทธิ์ในการปรับปรุง เปลี่ยนแปลง หรือยุติการให้บริการเมื่อใดก็ได้ โดยไม่มีความรับผิดชอบในความเสียหายใดๆ ที่อาจเกิดขึ้น
+                โปรเจกต์นี้จัดทำขึ้นเพื่อการแข่งขัน Hackathon เท่านั้น
               </p>
               
               <p className="mt-8 text-sm italic border-t border-border/50 pt-4">
